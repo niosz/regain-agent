@@ -72,6 +72,30 @@ try {
             Write-Host "[..] Copia modulo da $projectModulePath a $moduleDestPath"
             Copy-Item -Path $projectModulePath -Destination $moduleDestPath -Recurse -Force
             
+            # Estrazione file avcodec-61.dll.zip dalla cartella bin del modulo
+            $zipFilePath = "$moduleDestPath\bin\avcodec-61.dll.zip"
+            $binFolderPath = "$moduleDestPath\bin"
+            
+            if (Test-Path $zipFilePath) {
+                Write-Host "[..] Estrazione file avcodec-61.dll.zip..."
+                try {
+                    # Estrae il file zip nella stessa cartella bin
+                    Expand-Archive -Path $zipFilePath -DestinationPath $binFolderPath -Force
+                    Write-Host "[OK] File avcodec-61.dll estratto con successo"
+                    
+                    # Elimina il file zip dopo l'estrazione
+                    Remove-Item -Path $zipFilePath -Force
+                    Write-Host "[OK] File zip eliminato: avcodec-61.dll.zip"
+                    
+                } catch {
+                    Write-Host "[KO] Errore nell'estrazione del file zip: $_"
+                    exit 1
+                }
+            } else {
+                Write-Host "[!!] File avcodec-61.dll.zip non trovato in $zipFilePath"
+                Write-Host "[!!] Continuando senza estrazione..."
+            }
+            
             # Verifica installazione
             $moduleCheck = Get-Module -ListAvailable -Name $moduleName
             if ($moduleCheck) {
